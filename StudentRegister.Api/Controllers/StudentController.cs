@@ -38,5 +38,50 @@ namespace StudentRegister.Api.Controllers
                 return NotFound($"No records matching {search}");
             }
         }
+
+        [HttpPost]
+        public ActionResult<Student> CreateStudent(Student student)
+        {
+            var students = _studentService.GetStudents();
+            student.Id = students.Max(x => x.Id) + 1;
+            students.Add(student);
+            return Ok(student);
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Student> GetStudentById(int id)
+        {
+            var students = _studentService.GetStudents();
+            var student = students.FirstOrDefault(x => x.Id == id);
+            if (student == null)
+                return NotFound("Student details not found");
+            return Ok(student);
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult<Student> UpdateStudent(int id, Student student)
+        {
+            var students = _studentService.GetStudents();
+            var current = students.FirstOrDefault(x => x.Id == id);
+            if (current == null)
+                return NotFound("Student details not found");
+            current.StudentNumber = student.StudentNumber;
+            current.FirstName = student.FirstName;
+            current.LastName = student.LastName;
+            current.Gender = student.Gender;
+            return Ok(current);
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult DeleteStudent(int id)
+        {
+            var students = _studentService.GetStudents();
+            var student = students.FirstOrDefault(x => x.Id == id);
+            if (student == null)
+                return NotFound("Student details not found");
+            else
+                students.Remove(student);
+            return Accepted();
+        }
     }
 }
