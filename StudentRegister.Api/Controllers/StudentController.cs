@@ -9,78 +9,72 @@ namespace StudentRegister.Api.Controllers
     [ApiController]
     public class StudentController : ControllerBase
     {
-        private readonly StudentService _studentService;
-        public StudentController(StudentService studentService)
+        private readonly IStudentService _studentService;
+
+        public StudentController(IStudentService studentService)
         {
             _studentService = studentService;
         }
 
         [HttpGet]
-        public ActionResult<List<Student>> GetStudents()
+        public async Task<ActionResult<List<Student>>> GetStudents()
         {
-            var students = _studentService.GetStudents();
+            var students = await _studentService.GetStudentsAsync();
             return Ok(students);
         }
 
         [HttpGet("search")]
-        public ActionResult<List<Student>> SearchStudents(string search)
+        public async Task<ActionResult<List<Student>>> SearchStudents(string search)
         {
-            var students = _studentService.GetStudents();
-            var results = students.Where(x => x.StudentNumber.Contains(search) ||
-                                    x.FirstName.Contains(search) ||
-                                    x.LastName.Contains(search)).ToList();
+            var results = await _studentService.SearchStudentsAsync(search);
             if (results.Any())
             {
                 return Ok(results);
             }
-            else
-            {
-                return NotFound($"No records matching {search}");
-            }
+
+            return NotFound($"No records matching {search}");
         }
 
         [HttpPost]
-        public ActionResult<Student> CreateStudent(Student student)
+        public async Task<ActionResult<Student>> CreateStudent(Student student)
         {
-            var students = _studentService.GetStudents();
-            student.Id = students.Max(x => x.Id) + 1;
-            students.Add(student);
-            return Ok(student);
+            var created = await _studentService.CreateStudentAsync(student);
+            return CreatedAtAction(nameof(GetStudentById), new { id = created.Id }, created);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Student> GetStudentById(int id)
+        public async Task<ActionResult<Student>> GetStudentById(int id)
         {
-            var students = _studentService.GetStudents();
-            var student = students.FirstOrDefault(x => x.Id == id);
+            var student = await _studentService.GetStudentByIdAsync(id);
             if (student == null)
+            {
                 return NotFound("Student details not found");
+            }
+
             return Ok(student);
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Student> UpdateStudent(int id, Student student)
+        public async Task<ActionResult<Student>> UpdateStudent(int id, Student student)
         {
-            var students = _studentService.GetStudents();
-            var current = students.FirstOrDefault(x => x.Id == id);
+            var current = await _studentService.UpdateStudentAsync(id, student);
             if (current == null)
+            {
                 return NotFound("Student details not found");
-            current.StudentNumber = student.StudentNumber;
-            current.FirstName = student.FirstName;
-            current.LastName = student.LastName;
-            current.Gender = student.Gender;
+            }
+
             return Ok(current);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteStudent(int id)
+        public async Task<ActionResult> DeleteStudent(int id)
         {
-            var students = _studentService.GetStudents();
-            var student = students.FirstOrDefault(x => x.Id == id);
-            if (student == null)
+            var deleted = await _studentService.DeleteStudentAsync(id);
+            if (!deleted)
+            {
                 return NotFound("Student details not found");
-            else
-                students.Remove(student);
+            }
+
             return Accepted();
         }
     }

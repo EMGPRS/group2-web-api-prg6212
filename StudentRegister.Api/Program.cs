@@ -11,7 +11,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<StudentService>();
+builder.Services.AddSingleton<IStudentService, StudentService>();
 
 var app = builder.Build();
 
