@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using StudentRegister.Api.Authorization;
 using StudentRegister.Api.Models;
 using StudentRegister.Api.Services;
 
@@ -7,6 +9,7 @@ namespace StudentRegister.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.Viewer}")]
     public class StudentController : ControllerBase
     {
         private readonly IStudentService _studentService;
@@ -36,6 +39,7 @@ namespace StudentRegister.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<ActionResult<Student>> CreateStudent(Student student)
         {
             var created = await _studentService.CreateStudentAsync(student);
@@ -55,6 +59,7 @@ namespace StudentRegister.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<ActionResult<Student>> UpdateStudent(int id, Student student)
         {
             var current = await _studentService.UpdateStudentAsync(id, student);
@@ -67,6 +72,7 @@ namespace StudentRegister.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<ActionResult> DeleteStudent(int id)
         {
             var deleted = await _studentService.DeleteStudentAsync(id);

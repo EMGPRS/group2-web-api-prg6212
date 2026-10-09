@@ -1,6 +1,45 @@
 @StudentRegister.Api_HostAddress = http://localhost:5078
 
-GET {{StudentRegister.Api_HostAddress}}/weatherforecast/
+### Login as Viewer (the HTTP client stores the returned cookie)
+POST {{StudentRegister.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "viewer",
+  "password": "viewer123"
+}
+
+### Viewer can read students
+GET {{StudentRegister.Api_HostAddress}}/api/student
 Accept: application/json
+
+### Viewer receives 403 for an Admin-only operation
+DELETE {{StudentRegister.Api_HostAddress}}/api/student/1
+
+### Login as Admin (replaces the current authentication cookie)
+POST {{StudentRegister.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### Admin can add a student
+POST {{StudentRegister.Api_HostAddress}}/api/student
+Content-Type: application/json
+
+{
+  "firstName": "Lerato",
+  "lastName": "Khumalo",
+  "studentNumber": "ST005",
+  "gender": "F"
+}
+
+### Show the current authenticated user
+GET {{StudentRegister.Api_HostAddress}}/api/auth/me
+
+### Clear the authentication cookie
+POST {{StudentRegister.Api_HostAddress}}/api/auth/logout
 
 ###
