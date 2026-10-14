@@ -50,6 +50,7 @@ public sealed class AuthController : ControllerBase
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        
         return NoContent();
     }
 
